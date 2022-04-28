@@ -1,4 +1,5 @@
-color STDRESOURCECOLOR = #FFAA00;
+color STDRESOURCECOLOR1 = #00FF0E;
+color STDRESOURCECOLOR2 = #FF0000;
 
 
 class Resource{
@@ -7,16 +8,18 @@ class Resource{
   float x, y;                                                            //Position
   int res;                                                               //Amount of resource held
   float size;
-  color cl = #FFAA00;                                                    //Color
+  color cl;                                                    //Color
   
   //Constructors
   
-  Resource(){
+  Resource(int argType, color argCl){
     Random r = new Random();                                             //Randomizer
     x = DEFX/5 + (3 * DEFX / 5) * r.nextFloat();                         //
     y = DEFY/5 + (3 * DEFY / 5) * r.nextFloat();                         //Random position
     
-    type = 0;                                                            //Type 0 by default
+    type = argType;                                                            //Type of resource
+    
+    cl = argCl;                                                            //Color of resource
     
     res = 200;                                                            //Initial resource stored by default
     size = 20 + res/10;
@@ -35,6 +38,10 @@ class Resource{
   
   float getSize(){
     return size;
+  }
+  
+  int getType(){
+    return type;
   }
   
   //Setters

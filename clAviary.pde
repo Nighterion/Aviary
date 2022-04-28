@@ -14,7 +14,7 @@ class Aviary {
   int agentCounter;                                                                       //Agent counter
   
   color baseCl = #3483FF;                                                             //Base color (single)
-  color resCl = #FFAA00;                                                              //Resource color TODO: MAKE IT AN ARRAY SIZED resourceTypeAmount TO KEEP COLORS OF EACH RESOURCE TYPE
+  ArrayList<Integer> resCl;
   
   ArrayList<Base> bases;                                                              //
   ArrayList<Resource> resourcesList;                                                         //
@@ -28,7 +28,7 @@ class Aviary {
          int argInitAgentAmnt                                                         //Initial amount of agents
          ){
     
-    resourceTypeAmount = 1;                                                                    //Single resource type by default
+    resourceTypeAmount = 2;                                                                    //Double resource type by default
     
     baseAmount = argBaseAmnt;                                                           //
     resourceAmount = argResAmnt;                                                             //
@@ -38,12 +38,42 @@ class Aviary {
     resourcesList = new ArrayList<Resource>(argResAmnt);                                     //
     agents = new ArrayList<Agent>(argInitAgentAmnt);                                //Making ArrayLists
     
+    resCl = new ArrayList<Integer>(resourceTypeAmount);
+
+    //resCl[0] = resCl1;
+    //resCl[1] = resCl2;
+    
+    resCl.add(#00FF0E);
+    resCl.add(#FF0000);
+    
+    
     for(int i = 0; i < baseAmount; i++){                                                //
       bases.add(new Base());                                                          //
     }                                                                                 //Add bases
     
-    for(int i = 0; i < resourceAmount; i++){                                                 //
-      resourcesList.add(new Resource());                                                     //
+    Random r = new Random();
+    
+    int tmpTypeCounter1 = 0;
+    int tmpTypeCounter2 = 0;
+    
+    for(int i = 0; i < resourceAmount; i++){    
+      if(i == 3 && tmpTypeCounter1 == 0){
+        resourcesList.add(new Resource(0,resCl.get(0)));
+        resourcesList.add(new Resource(0,resCl.get(0)));
+        break;
+      }
+      
+      if(i == 3 && tmpTypeCounter2 == 0){
+        resourcesList.add(new Resource(1,resCl.get(1)));
+        resourcesList.add(new Resource(1,resCl.get(1)));
+        break;
+      }
+      int tmpNum = r.nextInt(2);
+      if(tmpNum == 0)
+        tmpTypeCounter1++;
+      else 
+        tmpTypeCounter2++;
+      resourcesList.add(new Resource(tmpNum,resCl.get(tmpNum)));     //
     }                                                                                 //Add resources
     
     for(int i = 0; i < agentCounter; i++){                                                //
@@ -104,32 +134,69 @@ class Aviary {
   void tick(){                                                                        //Performes animation tick
     agents.forEach((agent) -> {                                                       //For each agent
       color curCl = agent.step();                                                       //Perform step, get color from new location
-      if(curCl == baseCl){                                                            //If found base
-        agent.setFlag(1);                                                               //Set action flag to seek resource
+      if(curCl == baseCl){          //If found base
         agent.setBaseDist(0);                                                           //!!!Set supposed distance to base to 0!!!
-        agent.updateDir();                                                              //!!!Update direction accordingly to new action flag!!!
+                                                                 //!!!Update direction accordingly to new action flag!!!                                                       
         agent.peakScreamCounter();                                                    //Get ready to scream
         agent.dropResources();
-      }
-      if(curCl == resCl){                                                             //If found resource
-      int at = 0;
-      int idx = -1;
-        for (Resource res: resourcesList){
-          if(agent.getDistTo(res.getX(), res.getY()) <= res.getSize()){
-            idx = at;
-          }
-          at++;            
+        if(agent.getResType() == 0){
+          bases.get(0).incR1();
         }
-        agent.setFlag(0);                                                               //Set action flag to seek base
-        agent.setResDist(0, 0);                                                         //!!!Set supposed distance to resource to 0!!!
-        agent.updateDir();                                                              //!!!Update direction accordingly to new action flag!!!
-        agent.peakScreamCounter();                                                    //Get ready to scream
-        if(idx != -1){
-          if (agent.getLoad() < agent.getMaxLoad()){
-            agent.addRes(0);
-            if(resourcesList.get(idx).lowerRes()){
-              resourcesList.remove(idx);
-              resourcesList.add(new Resource());
+        if(agent.getResType() == 1){
+          bases.get(0).incR2();
+        }
+        if(bases.get(0).getAlpha() <= 1){
+          agent.setFlag(1);                                                               //Set action flag to seek resource 1
+          agent.updateDir();     
+        }
+        else{
+          agent.setFlag(2);                                                               //Set action flag to seek resource 2
+          agent.updateDir();     
+        }
+
+        
+      }
+      for(int i = 0; i < resourceTypeAmount; i++)
+      {
+        if(curCl == resCl.get(i) ){                                                             //If found resource
+        int at = 0;
+        int idx = -1;
+          for (Resource res: resourcesList){
+            if(agent.getDistTo(res.getX(), res.getY()) <= res.getSize() && res.getType() == i){
+              idx = at;
+            }
+            at++;            
+          }
+          agent.setFlag(0);                                                               //Set action flag to seek base
+          agent.setResDist(i, 0);                                                         //!!!Set supposed distance to resource to 0!!!
+          agent.updateDir();                                                              //!!!Update direction accordingly to new action flag!!!
+          agent.peakScreamCounter();                                                    //Get ready to scream
+          if(idx != -1){
+            if (agent.getLoad() < agent.getMaxLoad()){
+              agent.addRes(i);
+              agent.setResType(i);
+              if(resourcesList.get(idx).lowerRes()){
+                resourcesList.remove(idx);
+              
+                 Random r = new Random();
+                 int tmpNum = r.nextInt(2);
+                 
+                 int tmpTypeCounter1 = 0;
+                 int tmpTypeCounter2 = 0;
+                 
+                 for(int k = 0; k < resourceAmount - 1; k++) {
+                   if(resourcesList.get(k).getType() == 0)
+                     tmpTypeCounter1++;
+                   else
+                     tmpTypeCounter2++;
+                 }
+                 if (tmpTypeCounter1 <= 1)
+                   resourcesList.add(new Resource(0, resCl.get(0)));
+                 else if (tmpTypeCounter2 <= 1)
+                   resourcesList.add(new Resource(1, resCl.get(1)));
+                 else
+                   resourcesList.add(new Resource(tmpNum, resCl.get(tmpNum)));
+              }
             }
           }
         }

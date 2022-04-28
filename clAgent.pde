@@ -16,6 +16,7 @@ class Agent {
   int resourceTypeAmount;
   
   int[] resAmount;      //Amount of resources carried, index = type (size = amount of resource types)
+  int resType;
   int load;
   int maxLoad;
   
@@ -38,8 +39,9 @@ class Agent {
     Random r = new Random();                                //Randomizer
     
     
-    resourceTypeAmount = 1;                                          //Single resource type by default
+    resourceTypeAmount = 2;                                          //Single resource type by default
     status = r.nextInt(resourceTypeAmount + 1);                            //Initially seek either base or resource
+    resType = status - 1;
     updateColor();                                                 //Update color accordingly
     
     x = DEFX/10 + (4 * DEFX / 5) * r.nextFloat();           //
@@ -61,7 +63,7 @@ class Agent {
     maxLoad = 1;
     
     if(status == 0){
-      resAmount[0] = 1;
+      resAmount[r.nextInt(2)] = 1;
       load = maxLoad;
     }
     
@@ -110,6 +112,10 @@ class Agent {
   
   int getFlag(){
     return status;
+  }
+  
+  int getResType(){
+    return resType;
   }
   
   int getRes(int argIdx){
@@ -163,6 +169,10 @@ class Agent {
     updateColor();
   }
   
+  void setResType(int argType){
+    resType = argType;
+  }
+  
   void addRes(int argIdx){
     resAmount[argIdx]++;
     load++;
@@ -197,8 +207,10 @@ class Agent {
   }
   
   void updateColor(){                                        //Updates color accordingly to status
-    if(status == 0)
-      cl = #FF8400;
+    if(status == 0 && resType == 0)
+      cl = #00FF0E;
+    else if ( status == 0 && resType == 1)
+      cl = #FF0000;
     else
       cl = #000000;
   }

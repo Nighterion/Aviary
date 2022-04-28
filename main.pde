@@ -8,7 +8,7 @@ int DEFY = 1080;
 boolean pause = false;
 
 
-Aviary AV = new Aviary(1, 3, 500);
+Aviary AV = new Aviary(1, 5, 500);
 
 
 void setup(){
@@ -33,7 +33,7 @@ void keyPressed(){
   switch(key){
     case 'r':
     case 'R':
-      AV = new Aviary(1, 3, 300);
+      AV = new Aviary(1, 5, 500);
       break;
     case 'p':
     case 'P':
